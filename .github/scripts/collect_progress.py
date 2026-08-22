@@ -3,6 +3,7 @@
 import csv
 import json
 import os
+import random
 import re
 import sys
 import time
@@ -48,7 +49,17 @@ USER_AGENT = (
 NAV_TIMEOUT_MS = 30000
 IDLE_SOFT_WAIT_MS = 8000
 POST_LOAD_WAIT_MS = 3500
-REQUEST_DELAY = 2
+
+# Base delay between students. Actual delay is randomized
+# (see REQUEST_DELAY_JITTER) so traffic doesn't look like a
+# fixed, obviously-scripted interval.
+REQUEST_DELAY = 5
+REQUEST_DELAY_JITTER = (2, 6)  # seconds, added on top of REQUEST_DELAY
+
+# Retry handling for 429 / rate-limited responses.
+MAX_RATE_LIMIT_RETRIES = 4
+RATE_LIMIT_BASE_BACKOFF = 20  # seconds, doubles each retry
+RATE_LIMIT_MAX_BACKOFF = 180  # seconds, cap per single wait
 
 # Set THM_DEBUG=1 in the environment to print diagnostic
 # output (captured JSON, rendered text, and exactly which
@@ -168,7 +179,11 @@ def fetch_profile(username, page):
         return None, None, [], "profile_not_found"
     if response.status == 429:
         page.remove_listener("response", handle_response)
-        return None, None, [], "rate_limited"
+        retry_after = response.headers.get("retry-after")
+        status = "rate_limited"
+        if retry_after:
+            status = f"rate_limited:retry_after={retry_after}"
+        return None, None, [], status
     if response.status >= 400:
         page.remove_listener("response", handle_response)
         return None, None, [], f"http_{response.status}"
@@ -404,10 +419,74 @@ def extract_room_count(html, visible_text, captured_json):
 # Student collection
 # ============================================================
 
+def _parse_retry_after_seconds(status):
+    """
+    Extract the numeric retry-after seconds from a status string
+    like "rate_limited:retry_after=30", if present.
+    """
+
+    if not status or ":retry_after=" not in status:
+        return None
+
+    raw = status.split(":retry_after=", 1)[1]
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
+def fetch_profile_with_retry(username, page):
+    """
+    Calls fetch_profile(), automatically retrying on rate-limit
+    (429) responses with exponential backoff. Respects a
+    Retry-After header if TryHackMe sends one; otherwise backs
+    off using RATE_LIMIT_BASE_BACKOFF, doubling each attempt up
+    to RATE_LIMIT_MAX_BACKOFF.
+    """
+
+    attempt = 0
+
+    while True:
+        html, visible_text, captured_json, status = fetch_profile(
+            username, page
+        )
+
+        if not (status or "").startswith("rate_limited"):
+            return html, visible_text, captured_json, status
+
+        attempt += 1
+
+        if attempt > MAX_RATE_LIMIT_RETRIES:
+            print(
+                f"      Rate limited after {attempt - 1} retries, "
+                f"giving up on {username}"
+            )
+            return html, visible_text, captured_json, status
+
+        retry_after = _parse_retry_after_seconds(status)
+        if retry_after is not None:
+            wait_seconds = retry_after
+        else:
+            wait_seconds = min(
+                RATE_LIMIT_BASE_BACKOFF * (2 ** (attempt - 1)),
+                RATE_LIMIT_MAX_BACKOFF,
+            )
+        # Add jitter so parallel/scheduled runs don't all retry
+        # in lockstep.
+        wait_seconds += random.uniform(0, 5)
+
+        print(
+            f"      Rate limited (attempt {attempt}/"
+            f"{MAX_RATE_LIMIT_RETRIES}), waiting "
+            f"{wait_seconds:.1f}s before retrying {username}..."
+        )
+        time.sleep(wait_seconds)
+
+
 def collect_student(username, page):
     print(f"      Checking TryHackMe: {username}")
 
-    html, visible_text, captured_json, status = fetch_profile(
+    html, visible_text, captured_json, status = fetch_profile_with_retry(
         username, page
     )
 
@@ -423,11 +502,20 @@ def collect_student(username, page):
         snippet = (visible_text or "")[:1500]
         print(f"      [DEBUG] visible text (truncated):\n{snippet}")
 
+    # Normalize "rate_limited:retry_after=30" back down to
+    # "rate_limited" for storage/markdown formatting, now that
+    # the retry-after value has already been used and logged.
+    normalized_status = (
+        "rate_limited"
+        if (status or "").startswith("rate_limited")
+        else status
+    )
+
     if html is None:
         return {
             "username": username,
             "rooms": None,
-            "status": status,
+            "status": normalized_status,
         }
 
     rooms, source = extract_room_count(html, visible_text, captured_json)
@@ -641,7 +729,7 @@ def process_batch(batch_name, config, page):
             f"({result['status']})"
         )
 
-        time.sleep(REQUEST_DELAY)
+        time.sleep(REQUEST_DELAY + random.uniform(*REQUEST_DELAY_JITTER))
 
     save_json(batch_name, results)
 
