@@ -1,0 +1,16 @@
+{
+  "batch": "2024_2028",
+  "updated_at": "2026-08-22T18:25:59.485959+00:00",
+  "students": {
+    "36": {
+      "username": "ppriya3375",
+      "rooms": 5,
+      "status": "ok"
+    },
+    "52": {
+      "username": "hiclashersaran",
+      "rooms": 40,
+      "status": "ok"
+    }
+  }
+}
