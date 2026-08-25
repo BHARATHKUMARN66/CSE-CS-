@@ -1,25 +1,25 @@
 {
   "batch": "2024_2028",
-  "updated_at": "2026-08-24T06:23:22.827498+00:00",
+  "updated_at": "2026-08-25T04:10:26.838341+00:00",
   "students": {
     "4": {
       "username": "deebikaellappan12",
-      "rooms": 40,
-      "status": "ok"
+      "rooms": null,
+      "status": "rate_limited"
     },
     "13": {
       "username": "CyberCracker27",
-      "rooms": 151,
-      "status": "ok"
+      "rooms": null,
+      "status": "rate_limited"
     },
     "36": {
       "username": "ppriya3375",
-      "rooms": 5,
-      "status": "ok"
+      "rooms": null,
+      "status": "count_not_found"
     },
     "37": {
       "username": "DARKKNIGHT19",
-      "rooms": 51,
+      "rooms": 52,
       "status": "ok"
     },
     "52": {
@@ -29,7 +29,7 @@
     },
     "55": {
       "username": "Hexsenberg",
-      "rooms": 200,
+      "rooms": 201,
       "status": "ok"
     }
   }
