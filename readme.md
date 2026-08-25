@@ -34,11 +34,15 @@ Official repository tracking student **projects**, **CTF / security activity**, 
 
 ## 🏆 Events & Achievements
 
-> This section highlights department members' participation in CTFs, workshops, hackathons, and other technical events. *(Pending: paste specific LinkedIn events, dates, and links to populate this table — automated LinkedIn scraping isn't possible due to platform restrictions.)*
+<!-- > This section highlights department members' participation in CTFs, workshops, hackathons, and other technical events. *(Pending: paste specific LinkedIn events, dates, and links to populate this table — automated LinkedIn scraping isn't possible due to platform restrictions.)* -->
 
-| Date | Event | Type | Link |
-| --- | --- | --- | --- |
-| — | — | — | — |
+| Date | Event | Organizer | Students | Position |
+| --- | --- | --- | --- | --- |
+| 13.12.2025 - 18.12.2025 | Workshop |  IIITD&M Kancheepuram, Chennai | Saran K  | Top Performer
+| 22.12.2025 | CTF | Anna University, Chennai | Harihara Sudhan K K, Priyadharshini M | 🥉 Third |
+| 13.03.2026 | Project Presentation | KPR Institute of Engineering and Technology | Balaharisidharth T, Dharani P N | 🥇 First |
+| 12.03.2026 – 14.03.2026 | Hackathon | Sri Shakthi Institute of Engineering and Technology | Joel Anand L V, Sahana S | 🥉 Third |
+
 
 ---
 
