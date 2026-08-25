@@ -1,6 +1,6 @@
 # Department of Computer Science and Engineering (Cyber Security)
 
-![Maintained](https://img.shields.io/badge/Maintained%20by-Saran%20K-6d28d9?style=flat-square)
+[![Maintained](https://img.shields.io/badge/Maintained%20by-Saran%20K-6d28d9?style=flat-square)](https://sarankanakavel.me)
 
 Official repository tracking student **projects**, **CTF / security activity**, **department events**, and **coding-practice progress** across Cyber Security batches.
 
