@@ -40,8 +40,6 @@ Official repository tracking student **projects**, **CTF / security activity**, 
 | --- | --- | --- | --- |
 | — | — | — | — |
 
-📎 Full activity & professional updates: [linkedin.com/in/saran-kanakavel](https://www.linkedin.com/in/saran-kanakavel/)
-
 ---
 
 ## 💻 Student Projects
